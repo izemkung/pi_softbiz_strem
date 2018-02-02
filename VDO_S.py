@@ -86,8 +86,10 @@ while(GPIO.input(4) == 0):
     time.sleep(0.2)
     GPIO.output(17,False)
 
+print("Loop") 
 while(True):
-        
+    GPIO.output(17,True)
+    time.sleep(2)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
     #print ffmpeg_call

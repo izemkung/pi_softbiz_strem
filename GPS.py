@@ -40,11 +40,13 @@ pic_url = ConfigSectionMap('Profile')['pic_api']
 
 gpsd = None #seting the global variable
 
- 
-os.system('clear') #clear the terminal (optional)
+portOk = '/dev/ttyUSB1'
+
+os.system('sudo chmod +x /home/pi/pihos/connect.sh')
+
 os.system('sudo systemctl stop gpsd.socket')
 os.system('sudo systemctl disable gpsd.socket')
-os.system('sudo gpsd /dev/ttyAMA0 -F /var/run/gpsd.sock')
+os.system('sudo gpsd {0} -F /var/run/gpsd.sock'.format(portOk))
 os.system('sudo systemctl enable gpsd.socket')
 os.system('sudo systemctl start gpsd.socket')
 
@@ -66,23 +68,24 @@ if __name__ == '__main__':
   try:
     GPIO.setwarnings(False)
     GPIO.setmode(GPIO.BCM)
-    GPIO.setup(27, GPIO.OUT)#3G
+    #GPIO.setup(27, GPIO.OUT)#3G
     GPIO.setup(22, GPIO.OUT)#GPS
     
     gpsp.start() # start it up
     countSend = 0
     countError = 0
+    timeout = time.time() + 30
     while True:
       #It may take a second or two to get good data
       #print gpsd.fix.latitude,', ',gpsd.fix.longitude,'  Time: ',gpsd.utc
       
-      os.system('clear')
-      print
+      #os.system('clear')
+      #print
       print 'GPS sending Seccess ' , countSend ,' Error ', countError  
-      print '----------------------------------------'
-      print 'latitude    ' , gpsd.fix.latitude
-      print 'longitude   ' , gpsd.fix.longitude
-      print 'time utc    ' , gpsd.utc,' + ', gpsd.fix.time
+      #print '----------------------------------------'
+      #print 'latitude    ' , gpsd.fix.latitude
+      #print 'longitude   ' , gpsd.fix.longitude
+      #print 'time utc    ' , gpsd.utc,' + ', gpsd.fix.time
       print  gps_url,'track_latitude={0:.6f}&track_longitude={1:.6f}&track_speed={2:.2f}&car_id={3}'.format(gpsd.fix.latitude,gpsd.fix.longitude,gpsd.fix.speed,id)
       
       if str(gpsd.fix.latitude) != 'nan' and str(gpsd.fix.latitude) != '0.0':
@@ -92,8 +95,14 @@ if __name__ == '__main__':
           #print 'status_code ' , resp.status_code
           #print 'headers     ' , resp.headers
           print 'content     ' , resp.content
-          countError = 0
+          
           GPIO.output(27,True)
+          if(resp.status_code == 200 ):
+              countSend+=1
+              countError = 0
+              timeout = time.time() + 30 #timeout reset
+          else:
+              countError+=1
         except:
           print 'ConnectionError'
           time.sleep(1)
@@ -101,11 +110,27 @@ if __name__ == '__main__':
           if countError > 20:
             GPIO.output(27,False)
             break
-          continue
 		
       GPIO.output(22,False)
       time.sleep(0.95) #set to whatever
 
+      if time.time() > timeout:
+        print "Timeout"
+        for count in range(0, 3):
+          time.sleep(0.2)
+          GPIO.output(22,True)
+          time.sleep(0.2)
+          GPIO.output(22,False)
+        break
+      if countError > 20:
+        print "countError"
+        for count in range(0, 6):
+          time.sleep(0.1)
+          GPIO.output(22,True)
+          time.sleep(0.1)
+          GPIO.output(22,False)
+        #GPIO.output(27,False)
+        break
 	  
       
 	  
@@ -131,13 +156,15 @@ if __name__ == '__main__':
     print "\nKilling Thread..."
     gpsp.running = False
     gpsp.join() # wait for the thread to finish what it's doing
-    GPIO.output(27,False)
+    #GPIO.output(27,False)
     GPIO.output(22,False)
     GPIO.cleanup()
+    exit()
 
   print "Done.\nExiting."
   gpsp.running = False
   gpsp.join() # wait for the thread to finish what it's doing
-  GPIO.output(27,False)
+  #GPIO.output(27,False)
   GPIO.output(22,False)
   GPIO.cleanup()
+  exit()

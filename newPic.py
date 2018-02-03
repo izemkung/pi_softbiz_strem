@@ -60,7 +60,10 @@ GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM) ## Use board pin numbering
 GPIO.setup(17, GPIO.OUT)#Rec
 GPIO.setup(27, GPIO.OUT)#3G
-  
+while True:
+    time.sleep(10)
+
+
 while True:
     
     timeout = time.time() + 10

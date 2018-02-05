@@ -7,7 +7,7 @@ import numpy as np
 import cv2
 import argparse
 import os
-from subprocess import Popen, PIPE  
+import subprocess as sp 
 import ConfigParser
 
 def ConfigSectionMap(section):
@@ -72,7 +72,7 @@ print ffmpeg_call
 
 print("Camera "+str(args["idcamera"])) 
 
-proc = Popen(ffmpeg_call)
+
 
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM) ## Use board pin numbering
@@ -86,17 +86,25 @@ while(GPIO.input(4) == 0):
     time.sleep(0.2)
     GPIO.output(17,False)
 
+proc = sp.Popen(ffmpeg_call, stdout=sp.PIPE)
+
 print("Loop") 
 while(True):
     GPIO.output(17,True)
     time.sleep(2)
+    rc = proc.poll()
+    print("Process Return coder>>"+str(rc)+"<<") 
+
     if cv2.waitKey(1) & 0xFF == ord('q'):
+        proc.kill()
         break
     #print ffmpeg_call
     if(GPIO.input(4) == 0):
+        proc.kill()
         break
-    
+    if proc.poll() != None : 
+        break
 
-print("Ok!!!") 
+print("Ok!!! End ") 
 GPIO.cleanup()
-proc.kill()  
+#proc.kill()  

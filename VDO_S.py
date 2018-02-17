@@ -9,7 +9,23 @@ import argparse
 import os
 import subprocess as sp 
 import ConfigParser
+import socket
 
+REMOTE_SERVER = "www.google.com"
+
+
+def internet_on():
+    try:
+        # see if we can resolve the host name -- tells us if there is
+        # a DNS listening
+        host = socket.gethostbyname(REMOTE_SERVER)
+        # connect to the host -- tells us if the host is actually
+        # reachable
+        s = socket.create_connection((host, 80), 2)
+        return True
+    except:
+        pass
+    return False
 def ConfigSectionMap(section):
     dict1 = {}
     options = Config.options(section)
@@ -86,7 +102,11 @@ while(GPIO.input(4) == 0):
     time.sleep(0.2)
     GPIO.output(17,False)
 
-proc = sp.Popen(ffmpeg_call, stdout=sp.PIPE)
+if internet_on() == True :
+    proc = sp.Popen(ffmpeg_call, stdout=sp.PIPE)
+else:
+    GPIO.cleanup()
+    exit()
 
 print("Loop") 
 while(True):
@@ -103,6 +123,8 @@ while(True):
         proc.kill()
         break
     if proc.poll() != None : 
+        break
+    if internet_on() != True : 
         break
 
 print("Ok!!! End ") 

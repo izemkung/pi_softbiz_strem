@@ -125,6 +125,7 @@ while(True):
     if proc.poll() != None : 
         break
     if internet_on() != True : 
+        proc.kill()
         break
 
 print("Ok!!! End ") 

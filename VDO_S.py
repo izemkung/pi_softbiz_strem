@@ -54,6 +54,15 @@ key0 = ConfigSectionMap('Profile')['key0']
 key1 = ConfigSectionMap('Profile')['key1']
 rest = ConfigSectionMap('Profile')['rest']
 
+strem_address0	= ConfigSectionMap('Profile')['strem_address0']
+strem_port0	= ConfigSectionMap('Profile')['strem_port0']
+strem_application0 = ConfigSectionMap('Profile')['strem_application0']
+strem_name0	= ConfigSectionMap('Profile')['strem_name0']
+strem_address1	= ConfigSectionMap('Profile')['strem_address1']
+strem_port1	= ConfigSectionMap('Profile')['strem_port1']
+strem_application1 = ConfigSectionMap('Profile')['strem_application1']
+strem_name1	= ConfigSectionMap('Profile')['strem_name1']
+
 
 ap = argparse.ArgumentParser()
 ap.add_argument("-o", "--output", type=str, default="/home/pi/usb/",
@@ -73,11 +82,23 @@ ffmpeg_call += (" -i /dev/video")
 ffmpeg_call += str(args["idcamera"])
 ffmpeg_call += (" -f s16le -ac 2 -i /dev/zero"
               " -c:v libx264 -pix_fmt yuv420p -preset ultrafast -g 20 -b:v 820k -c:a aac -ar 44100 -threads 0 -bufsize 512k"
-              " -f flv rtmp://a.rtmp.youtube.com/live2/")
+              " -f flv rtmp://")
 if args["idcamera"] == 0:
-    ffmpeg_call += key0
+    ffmpeg_call += strem_address0
+    ffmpeg_call += (":")
+    ffmpeg_call += strem_port0
+    ffmpeg_call += ("/")
+    ffmpeg_call += strem_application0
+    ffmpeg_call += ("/")
+    ffmpeg_call += strem_name0
 else:
-    ffmpeg_call += key1
+    ffmpeg_call += strem_address1
+    ffmpeg_call += (":")
+    ffmpeg_call += strem_port1
+    ffmpeg_call += ("/")
+    ffmpeg_call += strem_application1
+    ffmpeg_call += ("/")
+    ffmpeg_call += strem_name1
 
 
 print ffmpeg_call

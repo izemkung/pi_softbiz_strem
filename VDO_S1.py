@@ -67,7 +67,7 @@ strem_name1	= ConfigSectionMap('Profile')['strem_name1']
 ap = argparse.ArgumentParser()
 ap.add_argument("-o", "--output", type=str, default="/home/pi/usb/",
 	help="path to output")
-ap.add_argument("-i", "--idcamera", type=int, default=0,
+ap.add_argument("-i", "--idcamera", type=int, default=1,
 	help="camera should be used")
 ap.add_argument("-f", "--firmrate", type=int, default=10,
 	help="frame rate")
@@ -135,7 +135,7 @@ print("Loop")
 oldline = ""
 while(True):
     GPIO.output(17,True)
-    time.sleep(1)
+    time.sleep(0.5)
     line = proc.stdout.readline().strip() 
     if line == "" and proc.poll() is not None:
         returncode = proc.returncode

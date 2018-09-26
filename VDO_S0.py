@@ -135,7 +135,7 @@ print("Loop")
 oldline = ""
 while(True):
     GPIO.output(17,True)
-    time.sleep(1)
+    time.sleep(0.5)
     line = proc.stdout.readline().strip() 
     if line == "" and proc.poll() is not None:
         returncode = proc.returncode
